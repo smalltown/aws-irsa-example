@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: s3-echoer
+spec:
+  template:
+    spec:
+      serviceAccountName: s3-echoer
+      containers:
+      - name: main
+        image: amazonlinux:2018.03
+        command:
+        - "sh"
+        - "-c"
+        - "curl -sL -o /s3-echoer https://github.com/mhausenblas/s3-echoer/releases/latest/download/s3-echoer-linux && chmod +x /s3-echoer && echo This is an in-cluster test | /s3-echoer TARGET_BUCKET"
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: "us-west-2"
+        - name: ENABLE_IRP
+          value: "true"
+      restartPolicy: Never
