@@ -2,3 +2,4 @@ keys/
 certs/
 *json
 s3-echoer-job/s3-echoer-job.yaml
+pod-identity-webhook/mutatingwebhook-ca-bundle.yaml

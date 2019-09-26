@@ -6,7 +6,7 @@ mkdir -p keys
 # Generate the keypair
 PRIV_KEY="keys/oidc-issuer.key"
 PUB_KEY="keys/oidc-issuer.key.pub"
-PKCS_KEY="keys/oidc-issuer.pem"
+PKCS_KEY="keys/oidc-issuer.pub"
 
 # Generate a key pair
 ssh-keygen -t rsa -b 2048 -f $PRIV_KEY -m pem -N ""
@@ -17,6 +17,7 @@ ssh-keygen -e -m PKCS8 -f $PUB_KEY > $PKCS_KEY
 # create S3 Bucket
 timestamp=$(date +%s)
 AWS_DEFAULT_REGION=$(aws configure get region)
+AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-west-2}
 S3_BUCKET=aws-irsa-oidc-$timestamp
 aws s3api create-bucket --bucket $S3_BUCKET --create-bucket-configuration LocationConstraint=$AWS_DEFAULT_REGION
 

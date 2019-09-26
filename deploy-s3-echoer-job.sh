@@ -6,6 +6,9 @@ ISSUER_URL=$1
 ISSUER_HOSTPATH=$(echo $ISSUER_URL | cut -f 3- -d'/')
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 PROVIDER_ARN="arn:aws:iam::$ACCOUNT_ID:oidc-provider/$ISSUER_HOSTPATH"
+ROLE_NAME=s3-echoer
+AWS_DEFAULT_REGION=$(aws configure get region)
+AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-west-2}
 
 cat > irp-trust-policy.json << EOF
 {
@@ -19,15 +22,13 @@ cat > irp-trust-policy.json << EOF
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "${ISSUER_HOSTPATH}:sub": "system:serviceaccount:default:my-serviceaccount"
+          "${ISSUER_HOSTPATH}:sub": "system:serviceaccount:default:${ROLE_NAME}"
         }
       }
     }
   ]
 }
 EOF
-
-ROLE_NAME=s3-echoer
 
 aws iam create-role \
         --role-name $ROLE_NAME \
@@ -49,15 +50,16 @@ kubectl annotate sa s3-echoer eks.amazonaws.com/role-arn=$S3_ROLE_ARN
 
 # deploy s3 echoer job into k8s cluster
 timestamp=$(date +%s)
-TARGET_BUCKET=irp-test-$timestamp
+TARGET_BUCKET=$ROLE_NAME-$timestamp
 
 aws s3api create-bucket \
-            --bucket $TARGET_BUCKET \
-            --create-bucket-configuration LocationConstraint=$(aws configure get region) \
-            --region $(aws configure get region)
+          --bucket $TARGET_BUCKET \
+          --create-bucket-configuration LocationConstraint=$AWS_DEFAULT_REGION \
+          --region $AWS_DEFAULT_REGION
 
 sed -e "s/TARGET_BUCKET/${TARGET_BUCKET}/g" s3-echoer-job/s3-echoer-job.yaml.template > s3-echoer-job/s3-echoer-job.yaml
 
+sleep 10
 kubectl create -f s3-echoer-job/s3-echoer-job.yaml
 
 echo "The Demo S3 bucket as below:"
