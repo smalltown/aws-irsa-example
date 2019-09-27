@@ -1,5 +1,7 @@
 # aws-irsa-example
 
+![IRSA Workflow](https://miro.medium.com/max/973/1*gU0ZWiY_zyCv1mtzzDS9FA.png)
+
 ## Background
 When Kubernetes comes to public cloud AWS, there is a issue that each K8S Pod needs specific permission to access AWS cloud resource, but AWS only can grant the permission under EC2 instance level, instead of K8S Pod level, hence, there are two workaround methods emerging in the community:
 
