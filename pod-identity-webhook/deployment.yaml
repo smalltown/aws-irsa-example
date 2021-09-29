@@ -16,7 +16,7 @@ spec:
       serviceAccountName: pod-identity-webhook
       containers:
       - name: pod-identity-webhook
-        image: quay.io/amis/pod-identity-webhook:v0.0.1
+        image: amazon/amazon-eks-pod-identity-webhook:latest
         imagePullPolicy: Always
         command:
         - /webhook
@@ -27,6 +27,7 @@ spec:
         - --annotation-prefix=eks.amazonaws.com
         - --token-audience=sts.amazonaws.com
         - --logtostderr
+        - --v=9
         volumeMounts:
         - name: webhook-certs
           mountPath: /var/run/app/certs
