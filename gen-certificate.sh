@@ -14,6 +14,7 @@ openssl req \
         -newkey rsa:2048 \
         -keyout certs/tls.key \
         -out certs/tls.crt \
+        -addext "subjectAltName = DNS:$POD_IDENTITY_SERVICE_NAME.$POD_IDENTITY_SERVICE_NAMESPACE.svc,DNS:$POD_IDENTITY_SERVICE_NAME,DNS:$POD_IDENTITY_SERVICE_NAME.$POD_IDENTITY_SERVICE_NAMESPACE,DNS:$POD_IDENTITY_SERVICE_NAME.$POD_IDENTITY_SERVICE_NAMESPACE.svc.cluster.local" \
         -days $CERTIFICATE_PERIOD -nodes -subj "/CN=$POD_IDENTITY_SERVICE_NAME.$POD_IDENTITY_SERVICE_NAMESPACE.svc"
 
 # Create secret for pod-identity-webhook to get certificate
